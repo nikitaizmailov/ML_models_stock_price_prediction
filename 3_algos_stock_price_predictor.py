@@ -34,27 +34,28 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 
 # title of the web app
-st.title("Stock Forecasting & Option Price Model")
+st.title("Predict and Forecast Stock Prices in to the Future (via ML Models) & Black-Scholes Option Pricing Model")
 
-st.subheader("Black-Scholes Option Price model")
-### Black Scholes model
-# Current stock (or other underlying) price
+with st.container():
+    st.subheader("Black-Scholes Option Pricing Model")
+    ### Black Scholes model
+    # Current stock (or other underlying) price
 
-S = (st.text_input("Current Stock Price", 30.5))
+    S = (st.text_input("Current Stock Price", 30.5))
 
-# Strike price
-K = (st.text_input("Strike Price of the option", 60))
+    # Strike price
+    K = (st.text_input("Strike Price of the option", 60))
 
-# risk free interest rate
-r = (st.text_input("10 year risk free interest rate (1.4 for 1.4%)", 1.4))
+    # risk free interest rate
+    r = (st.text_input("10 year risk free interest rate (1.4 for 1.4%)", 1.4))
 
-# time to maturity
-t = (st.text_input("time to maturity in days", 394))
+    # time to maturity
+    t = (st.text_input("time to maturity in days", 394))
 
-# Standard Deviation σ same as Implied Volatility for the option
-sigma = (st.text_input("Implied Volatility (40 for 40%, 55 for 55%)", 44))
+    # Standard Deviation σ same as Implied Volatility for the option
+    sigma = (st.text_input("Implied Volatility (40 for 40%, 55 for 55%)", 44))
 
-option_type = st.selectbox("Select Option Type (Call/Put)", ['Call', "Put"])
+    option_type = st.selectbox("Select Option Type (Call/Put)", ['Call', "Put"])
 
 # Black-Schloles formula/function
 def black_scholes_model(r, S, K, t, sigma, option_type):
@@ -94,6 +95,7 @@ st.button('Generate Fair Price of Stock Option', on_click=black_scholes_model(r,
 
 # The model uses the features (High, Low, Open, Volume, Adj Close) to predict the Close Price of the stock
 
+st.markdown("#")
 st.subheader("Stock Price Forecasting Model")
 
 # Downloading the data
@@ -141,7 +143,7 @@ future = m.make_future_dataframe(periods=period)
 forecast = m.predict(future)
 
 # Show and plot forecast
-st.subheader("Facebook's Prophet Stock Price Forecasting Model In Use")
+st.subheader('Facebook "Prophet" ML model: Predicting Stock Prices')
 st.subheader('Forecast data')
 st.write(forecast.tail())
     
