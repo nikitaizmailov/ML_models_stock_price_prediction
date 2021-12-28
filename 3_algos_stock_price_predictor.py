@@ -34,48 +34,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 
 # title of the web app
-st.title("Predict and Forecast Stock Prices in to the Future (via ML Models) & Black-Scholes Option Pricing Model")
-st.subheader("Please Scroll Down To See All The Forecasting Models")
-with st.container():
-    st.subheader("Black-Scholes Option Pricing Model")
-    ### Black Scholes model
-    # Current stock (or other underlying) price
-
-    S = (st.text_input("Current Stock Price", 30.5))
-
-    # Strike price
-    K = (st.text_input("Strike Price of the option", 60))
-
-    # risk free interest rate
-    r = (st.text_input("10 year risk free interest rate (1.4 for 1.4%)", 1.4))
-
-    # time to maturity
-    t = (st.text_input("time to maturity in days", 394))
-
-    # Standard Deviation σ same as Implied Volatility for the option
-    sigma = (st.text_input("Implied Volatility (40 for 40%, 55 for 55%)", 44))
-
-    option_type = st.selectbox("Select Option Type (Call/Put)", ['Call', "Put"])
-
-# Black-Schloles formula/function
-def black_scholes_model(r, S, K, t, sigma, option_type):
-    """Calculate BS option price for a call/put"""
-    # checking if value is a string or None
-    S = float(S)
-    K = float(K)
-    r = float(r) / 100
-    t = float(t) / 365
-    sigma = float(sigma) /100
-    d1 = (np.log(S/K) + (r + sigma**2/2)*t)/(sigma*np.sqrt(t))
-    d2 = d1 - sigma*np.sqrt(t)
-    if (option_type == "Call"):
-        price = S*norm.cdf(d1, 0, 1) - K*np.exp(-r*t)*norm.cdf(d2, 0, 1)
-    elif (option_type == "Put"):
-        price = K*np.exp(-r*t)*norm.cdf(-d2, 0, 1) - S*norm.cdf(-d1, 0, 1)
-    return st.write(f"Fair Option Price: {price}")
-
-st.button('Generate Fair Price of Stock Option', on_click=black_scholes_model(r, S, K, t, sigma, option_type))
-
+st.title("Forecasting Future Stock Prices Using Machine Learning Models")
 
 # Comparison of Financial Models to predict stock prices
 # Statistical Models
@@ -93,11 +52,7 @@ st.button('Generate Fair Price of Stock Option', on_click=black_scholes_model(r,
 # RMSE = Root Mean Squared Error
 # AAE = Average Absolute Error
 
-# The model uses the features (High, Low, Open, Volume, Adj Close) to predict the Close Price of the stock
-
-st.markdown("#")
-st.subheader("Stock Price Forecasting Model")
-
+st.write("The model uses the features (High, Low, Open, Volume, Adj Close) to predict the Close Price of the stock")
 # Downloading the data
 selected_ticker = st.text_input("Ticker of the stock", "VIAC")
 
@@ -120,7 +75,7 @@ data_load_state = st.text('Loading data...')
 price_data_df = load_data(selected_ticker)
 data_load_state.text('Loading data... done!')
 
-st.subheader('Downloaded Historical Stock Price Data from Yahoo Finance:')
+st.subheader('Historical Stock Price Data sourced from Yahoo Finance:')
 st.write(price_data_df.tail())
 
 # Plot raw data
@@ -144,10 +99,13 @@ forecast = m.predict(future)
 
 # Show and plot forecast
 st.subheader('Facebook "Prophet" ML model: Predicting Stock Prices')
-st.subheader('Forecast data')
+st.write('Generated Forecast data')
 st.write(forecast.tail())
-    
-st.write(f'Forecast plot for {n_years} years')
+
+if n_years > 1:
+    st.write(f'Forecast plot for {n_years} years')
+else:
+    st.write(f'Forecast plot for {n_years} year')
 fig1 = plot_plotly(m, forecast, xlabel='Date', ylabel='Value')
 st.plotly_chart(fig1, use_container_width=True)
 
@@ -216,9 +174,9 @@ y_test_plot, y_pred_plot = convert_to_dfs(y_test, y_pred)
 # Dataframe with predicted, actual and Errors Metrics: RMSE and MAPE
 def display_error_df(y_test_df_final, y_pred_df_final):
     error_combined_df= pd.merge(y_test_df_final, y_pred_df_final, left_index=True, right_index=True)
-    error_combined_df.columns = ['Close Price (Actual)', 'Close Price (Predicted)']
+    error_combined_df.columns = ['Close Price', 'Predicted']
 
-    error_combined_df['Absolute Error'] = error_combined_df['Close Price (Predicted)'] - error_combined_df['Close Price (Actual)']
+    error_combined_df['Absolute Error'] = error_combined_df['Predicted'] - error_combined_df['Close Price']
 
     error_mse = mean_squared_error(y_test, y_pred)
     error_rmse = np.sqrt(error_mse)
@@ -232,7 +190,7 @@ def display_error_df(y_test_df_final, y_pred_df_final):
 
 error_df = display_error_df(y_test_plot, y_pred_plot)
 
-st.subheader("Forecast data")
+st.write("Actual and Predicted data")
 st.write(error_df.tail())
 
 #Predicted vs True Adj Close Value – LSTM
@@ -262,7 +220,7 @@ y_predicted_prices = lin_reg.predict(X_test_reshaped)
 # getting data to plot.
 y_test_plot2, y_pred_plot2 = convert_to_dfs(y_test, y_predicted_prices)
 
-st.subheader("Forecast data")
+st.write("Actual and Predicted data")
 # displaying the dataframe.
 error_df = display_error_df(y_test_plot2, y_pred_plot2)
 st.write(error_df.tail())
@@ -281,7 +239,7 @@ y_predicted_decision_tree = forest_reg.predict(X_test_reshaped)
 # getting data to plot.
 y_test_plot3, y_pred_plot3 = convert_to_dfs(y_test, y_predicted_decision_tree)
 
-st.subheader("Forecast data")
+st.write("Actual and Predicted data")
 # displaying the dataframe.
 error_df = display_error_df(y_test_plot3, y_pred_plot3)
 st.write(error_df.tail())
@@ -289,6 +247,47 @@ st.write(error_df.tail())
 # plotting chart.
 plot_fig(y_test_plot3, y_pred_plot3,  "Decison Tree Model's predicted and actual prices")
 
+st.subheader("Below is the Options Pricing Calculator to provide a Fair Price of the Option")
+
+with st.container():
+    st.write("Black-Scholes Option Pricing Model")
+    ### Black Scholes model
+    # Current stock (or other underlying) price
+
+    S = (st.text_input("Current Stock Price", 30.5))
+
+    # Strike price
+    K = (st.text_input("Strike Price of the option", 60))
+
+    # risk free interest rate
+    r = (st.text_input("10 year risk free interest rate (1.4 for 1.4%)", 1.4))
+
+    # time to maturity
+    t = (st.text_input("time to maturity in days", 394))
+
+    # Standard Deviation σ same as Implied Volatility for the option
+    sigma = (st.text_input("Implied Volatility (40 for 40%, 55 for 55%)", 44))
+
+    option_type = st.selectbox("Select Option Type (Call/Put)", ['Call', "Put"])
+
+# Black-Schloles formula/function
+def black_scholes_model(r, S, K, t, sigma, option_type):
+    """Calculate BS option price for a call/put"""
+    # checking if value is a string or None
+    S = float(S)
+    K = float(K)
+    r = float(r) / 100
+    t = float(t) / 365
+    sigma = float(sigma) /100
+    d1 = (np.log(S/K) + (r + sigma**2/2)*t)/(sigma*np.sqrt(t))
+    d2 = d1 - sigma*np.sqrt(t)
+    if (option_type == "Call"):
+        price = S*norm.cdf(d1, 0, 1) - K*np.exp(-r*t)*norm.cdf(d2, 0, 1)
+    elif (option_type == "Put"):
+        price = K*np.exp(-r*t)*norm.cdf(-d2, 0, 1) - S*norm.cdf(-d1, 0, 1)
+    return st.write(f"Fair Option Price: {price}")
+
+st.button('Generate Fair Price of Stock Option', on_click=black_scholes_model(r, S, K, t, sigma, option_type))
 
 
 
