@@ -178,11 +178,11 @@ def display_error_df(y_test_df_final, y_pred_df_final):
 
     error_combined_df['Absolute Error'] = error_combined_df['Predicted'] - error_combined_df['Close Price']
 
-    error_mse = mean_squared_error(y_test, y_pred)
+    error_mse = mean_squared_error(y_test_df_final, y_pred_df_final)
     error_rmse = np.sqrt(error_mse)
     error_combined_df['Root_Mean_Squared_Error'] = error_rmse
 
-    error_mape = mean_absolute_percentage_error(y_test, y_pred)
+    error_mape = mean_absolute_percentage_error(y_test_df_final, y_pred_df_final)
     error_mape = error_mape * 100
     error_combined_df['Mean_Absolute_Percentage_Error'] = error_mape
     error_combined_df = error_combined_df.reset_index()
@@ -247,6 +247,8 @@ st.write(error_df.tail())
 # plotting chart.
 plot_fig(y_test_plot3, y_pred_plot3,  "Decison Tree Model's predicted and actual prices")
 
+
+# Black-Scholes Options Pricing model calculator
 st.subheader("Below is the Options Pricing Calculator to provide a Fair Price of the Option")
 
 with st.container():
