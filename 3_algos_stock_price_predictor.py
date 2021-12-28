@@ -35,7 +35,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 
 # title of the web app
 st.title("Predict and Forecast Stock Prices in to the Future (via ML Models) & Black-Scholes Option Pricing Model")
-
+st.subheader("Please Scroll Down To See All The Forecasting Models")
 with st.container():
     st.subheader("Black-Scholes Option Pricing Model")
     ### Black Scholes model
@@ -107,7 +107,7 @@ end_final = dt.datetime.now().date()
 
 n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
-
+st.write(f"Selected years of forecast into the future: {n_years}")
 
 @st.cache
 def load_data(selected_ticker):
@@ -115,12 +115,12 @@ def load_data(selected_ticker):
     data.reset_index(inplace=True)
     return data
 
-	
+
 data_load_state = st.text('Loading data...')
 price_data_df = load_data(selected_ticker)
 data_load_state.text('Loading data... done!')
 
-st.subheader('Raw data')
+st.subheader('Downloaded Historical Stock Price Data from Yahoo Finance:')
 st.write(price_data_df.tail())
 
 # Plot raw data
