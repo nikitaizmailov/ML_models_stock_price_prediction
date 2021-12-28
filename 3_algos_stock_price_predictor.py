@@ -64,7 +64,6 @@ n_years = st.slider('Years of prediction:', 1, 4)
 period = n_years * 365
 st.write(f"Selected years of forecast into the future: {n_years}")
 
-@st.cache
 def load_data(selected_ticker):
     data = web.DataReader(selected_ticker, 'yahoo', start_final, end_final)
     data.reset_index(inplace=True)
