@@ -34,25 +34,11 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 
 # title of the web app
-st.title("Forecasting Future Stock Prices Using Machine Learning Models")
+st.title("Stock Price Prediction Using Machine Learning Models")
 
-# Comparison of Financial Models to predict stock prices
-# Statistical Models
-# 1. ARIMA = Auto-Regressive Integrated Moving Average
-# 2. stochastic process-geometric Brownian motion
-# 3. Simple Linear Regression
-# 4. Decison Tree
+st.subheader("Each model is unique and displays the predicted stock prices against actual stock prices, including into the future.")
 
-# Machine Learning Models
-# 5. Artificial Neural Network = Sequential model
-# 6. Prophet Facebook time-series predicting algorithm
-
-# Measurement formulas used to calculate the error between predicted and actual price
-# MAPE = Mean Absolute Percentage Error
-# RMSE = Root Mean Squared Error
-# AAE = Average Absolute Error
-
-st.write("The model uses the last 50 days of the Close Price of the stock to predict the next day Close Price of the stock")
+st.write("Each model uses the last 50 days of the Close Price of the stock to predict the next day Close Price of the stock")
 # Downloading the data
 selected_ticker = st.text_input("Ticker of the stock", "VIAC")
 
@@ -209,7 +195,55 @@ error_df = display_error_df(y_test_plot, y_pred_plot)
 st.write("Test Dataset: Actual and Predicted data")
 st.write(error_df.tail())
 
-#Predicted vs True Adj Close Value – LSTM
+
+#### These two functions below are used for the forecasting the stock prices into the future beyond the current date.
+def generate_forecasted_data_future(model_used):
+    # inputted data is last 50 days
+    # scaled close price data
+    final_input = preped_dataframe_final['Close'].values
+    final_input = list(final_input[-50:])
+
+    # to scale back the predicted value to be fed back into the model
+    scaler = MinMaxScaler(feature_range=(0,1))
+    # the slicing is done such way to keep the 2d format of (-1,1)
+    scaler.fit(target_variable.values)
+
+    x_inputs = []
+
+    # variable to store the predicted values
+    lst_output = []
+
+    temp_input = []
+
+    # using last 50 days to predict the next value
+    forecasted_days = 50
+
+    predict_days = period
+
+    for x in range(forecasted_days, forecasted_days + predict_days):
+        x_inputs.append(final_input[x-forecasted_days:x])
+        x_input_temp = x_inputs[-1]
+        x_input = np.array(x_inputs[-1])
+        if not isinstance(model_used, Sequential):
+            x_input = x_input.reshape(1, 50)
+        else:
+            x_input = x_input.reshape(1, 1, 50)
+        temp_input.append(x_input_temp)
+        y_future_val = model_used.predict(x_input)
+        lst_output.append(float(y_future_val))
+        y_future_val = y_future_val.reshape(-1,1)
+        scaled_val = scaler.transform(y_future_val)
+        final_input.append(float(scaled_val))
+    
+    return lst_output
+        
+def connecting_series(arr_forecasted, arr_predicted):
+    final_array = list(arr_predicted.ravel())
+    final_array.extend(arr_forecasted)
+    
+    return final_array
+
+# Predicted vs True Adj Close Value – LSTM
 def plot_fig(y_test_plot_ch, y_pred_plot_ch, title):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=y_test_plot_ch.index, y=y_test_plot_ch['Close Price'], name="Actual Close Price"))
@@ -217,7 +251,31 @@ def plot_fig(y_test_plot_ch, y_pred_plot_ch, title):
     fig.layout.update(title_text=title, xaxis_rangeslider_visible=True)
     st.plotly_chart(fig)
 
+# Dates and Variables below are used to forecast into the future stock prices.
+# ANN model
+t_i = generate_forecasted_data_future(lstm)
+
+predicted_arr = connecting_series(t_i,y_pred)
+
+date_temp = price_data_df[train_index + forecasted_days: ]['Date'].tolist()
+start_temp = date_temp[0].date()
+number_of_days = int(len(predicted_arr))
+new_indices = pd.bdate_range(start=start_temp, periods=number_of_days)
+
+def convert_to_dfs_for_prediction(y_test_ser, y_pred_ser):
+    # Just covnerting these two numpy arrays into dataframes
+    y_test_df = pd.DataFrame(y_test_ser, columns=["Close Price"], index=price_data_df[train_index + forecasted_days: ]['Date'].tolist())
+    y_pred_df = pd.DataFrame(y_pred_ser, columns=["Close Price"], index=new_indices)
+
+    return y_test_df, y_pred_df
+
+y_test_plot, y_pred_plot = convert_to_dfs_for_prediction(y_test, predicted_arr)
+
 plot_fig(y_test_plot, y_pred_plot, "Neural Network Model's predicted and actual prices")
+
+
+
+
 
 # Linear Regression Model, Trained on train set and Tested on the test set.
 st.subheader("Linear Regression Model's predicted and actual stock prices")
@@ -241,8 +299,23 @@ st.write("Test Dataset: Actual and Predicted data")
 error_df = display_error_df(y_test_plot2, y_pred_plot2)
 st.write(error_df.tail())
 
+# Dates and Variables below are used to forecast into the future stock prices.
+# Linear Reg model
+y_future_prices = generate_forecasted_data_future(lin_reg)
+
+predicted_arr_2 = connecting_series(y_future_prices,y_predicted_prices)
+
+# getting data to plot.
+y_test_plot5, y_pred_plot5 = convert_to_dfs_for_prediction(y_test, predicted_arr_2)
+
 # plotting chart.
-plot_fig(y_test_plot2, y_pred_plot2, "Linear Regression Model's predicted and actual prices")
+plot_fig(y_test_plot5, y_pred_plot5, "Linear Regression Model's predicted and actual prices")
+
+
+
+
+
+
 
 # Forest Regression Tree
 st.subheader("Decision Tree Model's predicted and actual stock prices.")
@@ -260,8 +333,20 @@ st.write("Test Dataset: Actual and Predicted data")
 error_df = display_error_df(y_test_plot3, y_pred_plot3)
 st.write(error_df.tail())
 
+# Dates and Variables below are used to forecast into the future stock prices.
+# Linear Reg model
+y_future_prices2 = generate_forecasted_data_future(forest_reg)
+
+predicted_arr_3 = connecting_series(y_future_prices2,y_predicted_prices)
+
+# getting data to plot.
+y_test_plot_updated, y_pred_plot_updated = convert_to_dfs_for_prediction(y_test, predicted_arr_3)
+
 # plotting chart.
-plot_fig(y_test_plot3, y_pred_plot3,  "Decison Tree Model's predicted and actual prices")
+plot_fig(y_test_plot_updated, y_pred_plot_updated,  "Decison Tree Model's predicted and actual prices")
+
+
+
 
 
 # Black-Scholes Options Pricing model calculator
