@@ -248,7 +248,7 @@ def plot_fig(y_test_plot_ch, y_pred_plot_ch, title):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=y_test_plot_ch.index, y=y_test_plot_ch['Close Price'], name="Actual Close Price"))
     fig.add_trace(go.Scatter(x=y_pred_plot_ch.index, y=y_pred_plot_ch['Close Price'], name="Predicted Close Price"))
-    fig.layout.update(title_text=title, xaxis_rangeslider_visible=True)
+    fig.layout.update(title_text=title, xaxis_rangeslider_visible=True, xaxis_title="Time Span in Days", yaxis_title=f"${selected_ticker} Share Price in USD")
     st.plotly_chart(fig)
 
 # Dates and Variables below are used to forecast into the future stock prices.
@@ -264,8 +264,10 @@ new_indices = pd.bdate_range(start=start_temp, periods=number_of_days)
 
 def convert_to_dfs_for_prediction(y_test_ser, y_pred_ser):
     # Just covnerting these two numpy arrays into dataframes
-    y_test_df = pd.DataFrame(y_test_ser, columns=["Close Price"], index=price_data_df[train_index + forecasted_days: ]['Date'].tolist())
-    y_pred_df = pd.DataFrame(y_pred_ser, columns=["Close Price"], index=new_indices)
+    y_test_df = pd.DataFrame(y_test_ser, columns=["Close Price"])
+    y_pred_df = pd.DataFrame(y_pred_ser, columns=["Close Price"])
+
+
 
     return y_test_df, y_pred_df
 
