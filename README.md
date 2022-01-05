@@ -1,7 +1,7 @@
 # ML_models_stock_price_prediction
 Stock Price Prediction using Machine Learning models (including Artificial Neural Network, Linear Regression, Decision Tree and Prophet FB's model) + Black-Scholes Option Price model calculator
 
-URL of my Web App: https://share.streamlit.io/nikitaizmailov/ml_models_stock_price_prediction/main/3_algos_stock_price_predictor.py
+URL of my Web App: https://share.streamlit.io/nikitaizmailov/ml_models_stock_price_prediction/main/main_algos_updated.py
 
 <img width="893" alt="Screenshot 2022-01-04 at 19 25 55" src="https://user-images.githubusercontent.com/42198709/148106112-11a952cc-ff93-44e4-9166-bb3284c7d813.png">
 
