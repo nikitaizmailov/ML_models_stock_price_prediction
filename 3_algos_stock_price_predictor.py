@@ -54,7 +54,7 @@ st.title("Forecasting Future Stock Prices Using Machine Learning Models")
 
 st.write("The model uses the features (High, Low, Open, Volume, Adj Close) to predict the Close Price of the stock")
 # Downloading the data
-selected_ticker = st.text_input("Ticker of the stock", "VIAC")
+selected_ticker = st.text_input("Ticker of the stock", "AAPL")
 
 # 10 Year time period
 start_final = dt.date(2011,1,1)
