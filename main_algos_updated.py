@@ -38,7 +38,7 @@ st.subheader("Each model is unique and displays the predicted stock prices again
 
 st.write("Each model uses the last 50 days of the Close Price of the stock to predict the next day Close Price of the stock")
 # Downloading the data
-selected_ticker = st.text_input("Ticker of the stock", "VIAC")
+selected_ticker = st.text_input("Ticker of the stock", "AAPL")
 
 # 10 Year time period
 start_final = dt.date(2011,1,1)
